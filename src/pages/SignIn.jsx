@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
 import { IoIosEye, IoIosEyeOff } from "react-icons/io";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { toast } from 'react-toastify';
 import OAuth from '../components/OAuth';
 
 function SignIn() {
   const [showPassword, setShowPassword] = useState(false)
-  const [formData, setFormData] = React.useState({
+  const navigate = useNavigate()
+  const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
@@ -15,6 +18,18 @@ function SignIn() {
       ...prevState,
       [e.target.id]: e.target.value
     }))
+  }
+  async function handleSubmit(e) {
+    e.preventDefault()
+    try {
+      const auth = getAuth();
+      const userCredentail = await signInWithEmailAndPassword(auth, email, password)
+      if (userCredentail) {
+        navigate('/')
+      }
+    } catch (error) {
+      toast.error("Bad credentials. Please try again.")
+    }
   }
   return (
     <section>
@@ -34,7 +49,7 @@ function SignIn() {
               <p className='mb-6'>Don't have an account? <Link to="/sign-up" className='text-red-500 hover:text-red-700 ml-1'>Sign Up</Link></p>
               <p><Link to="/forgot-password" className='text-blue-500 hover:text-blue-700 ml-1'>Reset Password</Link></p>
             </div>
-            <button className='w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline uppercase transition duration-150 ease-out' type='submit'>Sign In</button>
+            <button onClick={handleSubmit} className='w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline uppercase transition duration-150 ease-out' type='submit'>Sign In</button>
             <div className='flex items-center my-4 before:border-t before:flex-1 before:border-gray-400 after:border-t after:flex-1 after:border-gray-400'>
               <p className='text-center font-semibold mx-4'>OR</p>
             </div>

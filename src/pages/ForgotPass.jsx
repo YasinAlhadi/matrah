@@ -1,18 +1,30 @@
 import React from 'react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
+import { toast } from 'react-toastify';
 import OAuth from '../components/OAuth';
 
 function ForgetPass() {
-  const [formData, setFormData] = useState({
-    email: '',
-  })
-  const { email } = formData
+  const [email, setEmail] = useState('')
   function handleChange(e) {
-    setFormData((prevState) => ({
-      ...prevState,
-      [e.target.id]: e.target.value
-    }))
+    setEmail(e.target.value)
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    try {
+      const auth = getAuth();
+      // send email to reset password
+      if (email === '') {
+        return toast.error("Please enter your email address")
+      }
+      await sendPasswordResetEmail(auth, email)
+      toast.success("Password reset link sent to your email")
+    } catch (error) {
+      toast.error("An error occurred. Please try again.")
+    }
+
   }
   return (
     <section>
@@ -22,7 +34,7 @@ function ForgetPass() {
           <img src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGJ1aWxkaW5nfGVufDB8fDB8fHww" alt="sign-in" className='w-full rounded-2xl' />
         </div>
         <div className='w-full md:w-[67%] lg:w-[40%] lg:ml-20'>
-          <form>
+          <form onSubmit={handleSubmit}>
             <p className='text-lg text-gray-700 mb-6'>Enter your email address and we will send you a link to reset your password.</p>
             <input className='w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out mb-6' type="email" id='email' value={email} onChange={handleChange} placeholder='Email Address' />
             <div className='text-sm sm:text-lg'>
