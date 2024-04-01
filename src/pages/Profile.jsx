@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
 import { db } from '../../firebase.config'
 import { doc, updateDoc } from 'firebase/firestore'
+import { FaHome } from "react-icons/fa";
+import { Link } from 'react-router-dom'
 
 function Profile() {
   const auth = getAuth()
@@ -56,9 +58,15 @@ function Profile() {
           }} className='text-center cursor-pointer mb-6 w-full bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline uppercase transition duration-150 ease-out'>
             {editProfile ? 'Save' : 'Edit Profile'}
           </div>
-          <button onClick={handleSignOut} className='w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline uppercase transition duration-150 ease-out' type='button'>Sign Out</button>
+          <button onClick={handleSignOut} className='mb-6 w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline uppercase transition duration-150 ease-out' type='button'>Sign Out</button>
 
         </form>
+        <button type='submit' className='w-full bg-blue-600 text-white uppercase px-7 py-3 text-sm font-medium rounded shadow-md hover:bg-blue-700 transition duration-150 ease-out hover:shadow-lg'>
+          <Link to="/create-listing" className='flex justify-center items-center'>
+            <FaHome className='mr-2 text-3xl' />
+            sell or rent your property
+          </Link>
+        </button>
       </div>
     </section>
     </>
