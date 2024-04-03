@@ -24,7 +24,9 @@ function App() {
           <Route path="/sign-in" element={<SingIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/offers" element={<Offers />} />
-          <Route path="/create-listing" element={<CreateListing />} />
+          <Route path='/create-listing' element={<PrivuteRoute />}>
+            <Route path="/create-listing" element={<CreateListing />} />
+          </Route>
           <Route path="/forgot-password" element={<ForgotPass />} />
         </Routes>
       </Router>

@@ -1,6 +1,18 @@
 import React, { useState } from 'react'
+import Spinner from '../components/Spinner'
+import { toast } from 'react-toastify'
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
+import { getAuth } from 'firebase/auth'
+import { v4 as uuidv4 } from 'uuid'
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
+import { db } from '../../firebase.config'
+import { useNavigate } from 'react-router'
 
 export default function CreateListing() {
+  const navigate = useNavigate()
+  const auth = getAuth()
+  const [geolocation, setGeolocation] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     type: 'rent',
     name: '',
@@ -12,22 +24,124 @@ export default function CreateListing() {
     description: '',
     offer: true,
     price: 0,
-    Dprice: 0
+    Dprice: 0,
+    images: [],
+    long: 0,
+    lat: 0
   })
-  const { type, name, beds, baths, parking, furnished, address, description, offer, price, Dprice } = formData
+  const { type, name, beds, baths, parking, furnished, address, description, offer, price, Dprice, images, long, lat } = formData
   function onChange(e) {
-    console.log(e.target.value)
+    let bool = null;
+    if (e.target.value === 'true') {
+      bool = true;
+    }
+    if (e.target.value === 'false') {
+      bool = false;
+    }
+    if (e.target.files) {
+      setFormData((prevState) => ({
+        ...prevState,
+        images: e.target.files
+      }))
+    }
+    if (!e.target.files) {
+      setFormData((prevState) => ({
+        ...prevState,
+        [e.target.id]: bool ?? e.target.value
+      }))
+    }
+  }
+  async function onSubmit(e) {
+    e.preventDefault()
+    setLoading(true)
+    if (+Dprice >= +price) {
+      setLoading(false)
+      toast.error('Discounted price must be less than the original price')
+      return
+    }
+    if (images.length > 6) {
+      setLoading(false)
+      toast.error('Max 6 images allowed')
+      return
+    }
+    let geo = {}
+    let location
+    if (geolocation){
+      const reponse = await fetch(`https://googleapis.com/maps/api/geocode/json?address=${address}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`)
+      const data = await reponse.json()
+      geo.lat = data.results[0]?.geometry.location.lat ?? 0
+      geo.long = data.results[0]?.geometry.location.lng ?? 0
+      location = data.status === 'ZERO_RESULTS' && "Invalid address"
+      if (location === "Invalid address") {
+        setLoading(false)
+        toast.error('Invalid address, please enter a valid address')
+        return
+      }
+    } else {
+      geo.lat = lat
+      geo.long = long
+    }
+    async function storeImage(image) {
+      return new Promise((resolve, reject) => {
+        const storage = getStorage()
+        const storageRef = ref(storage, `listings/${uuidv4()}`)
+        const uploadTask = uploadBytesResumable(storageRef, image)
+        uploadTask.on('state_changed', (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          console.log(`Upload is ${progress}% done`)
+          switch (snapshot.state) {
+            case 'paused':
+              console.log('Upload is paused')
+              break
+            case 'running':
+              console.log('Upload is running')
+              break
+          }
+        }, (error) => {
+          reject(error)
+        }, () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            resolve(downloadURL)
+          })
+        })
+      })
+    }
+    const imgUrls = await Promise.all(
+      [...images].map(async (image) => {
+        return await storeImage(image)
+      })
+    ).catch((error) => {
+      setLoading(false)
+      toast.error('Failed to upload images')
+    })
+    const formDataCopy = {
+      ...formData,
+      imgUrls,
+      long: geo.long,
+      lat: geo.lat,
+      timeStamp: serverTimestamp(),
+    }
+    delete formDataCopy.images
+    !formDataCopy.offer && delete formDataCopy.Dprice
+    const docRef = await addDoc(collection(db, 'listings'), formDataCopy)
+    setLoading(false)
+    toast.success('Listing created successfully')
+    navigate(`/category/${formDataCopy.type}/${docRef.id}`)
+  }
+
+  if (loading) {
+    return <Spinner />
   }
   return (
     <main className='max-w-md px-2 mx-auto'>
       <h1 className='text-3xl text-center mt-6 font-bold'>Create a Listing</h1>
-      <form action="">
+      <form onSubmit={onSubmit}>
         <p className='text-lg mt-6 font-semibold'>Sell or rent </p>
         <div className='flex'>
           <button type="button" id='type' value="sale" onClick={onChange} className={`mr-6 bg-white px-7 py-3 font-medium text-sm uppercase shadow-md rounded hover:shadow-lg active:shadow-lg focus:shadow-lg transition duration-150 ease-in-out w-full ${type === 'rent' ? 'bg-white text-black' : 'bg-slate-600 text-white'}`}>
             Sell
           </button>
-          <button type="button" id='type' value="sale" onClick={onChange} className={`bg-white px-7 py-3 font-medium text-sm uppercase shadow-md rounded hover:shadow-lg active:shadow-lg focus:shadow-lg transition duration-150 ease-in-out w-full ${type === 'sale' ? 'bg-white text-black' : 'bg-slate-600 text-white'}`}>
+          <button type="button" id='type' value="rent" onClick={onChange} className={`bg-white px-7 py-3 font-medium text-sm uppercase shadow-md rounded hover:shadow-lg active:shadow-lg focus:shadow-lg transition duration-150 ease-in-out w-full ${type === 'sale' ? 'bg-white text-black' : 'bg-slate-600 text-white'}`}>
             rent
           </button>
         </div>
@@ -41,7 +155,7 @@ export default function CreateListing() {
           <div>
             <p className='w-full text-lg font-semibold'>Baths</p>
             <input type="number" id='baths' value={baths} onChange={onChange} minLength='1' maxLength='100' required className='px-4 py-2 text-lg text-center text-gray-700 bg-white border-gray-300 rounded transition duration-150 ease-in-out mb-6'/>
-        </div>
+          </div>
         </div>
         <p className='text-lg mt-6 font-semibold'>Parking spot? </p>
         <div className='flex'>
@@ -63,6 +177,16 @@ export default function CreateListing() {
         </div>
         <p className='text-lg mt-6 font-semibold'>Address</p>
         <textarea type="text" id='address' value={address} onChange={onChange} placeholder='Address' required className='w-full px-4 py-2 text-gray-700 bg-white border-gray-300 rounded transition duration-150 ease-in-out mb-6'/>
+        <div className='flex space-x-6 mb-6'>
+          <div>
+            <p className='text-lg font-semibold'>latitude</p>
+            <input type="number" id='lat' value={lat} onChange={onChange} min='-90' max='90' required className='w-full px-4 py-2 text-lg text-center text-gray-700 bg-white border-gray-300 rounded transition duration-150 ease-in-out mb-6'/>
+          </div>
+          <div>
+            <p className='w-full text-lg font-semibold'>longitude</p>
+            <input type="number" id='long' value={long} onChange={onChange} min='-180' max='180' required className='px-4 py-2 text-lg text-center text-gray-700 bg-white border-gray-300 rounded transition duration-150 ease-in-out mb-6'/>
+            </div>
+        </div>
         <p className='text-lg font-semibold'>Description</p>
         <textarea type="text" id='description' value={description} onChange={onChange} placeholder='Description' required className='w-full px-4 py-2 text-gray-700 bg-white border-gray-300 rounded transition duration-150 ease-in-out mb-6'/>
         <p className='text-lg font-semibold'>Offer? </p>
@@ -88,7 +212,7 @@ export default function CreateListing() {
         {offer && (
           <div>
             <p className='text-lg font-semibold'>Discounted Price</p>
-            <input type="number" id='Dprice' value={Dprice} onChange={onChange} placeholder='Discounted Price' required min="1" max="1000000000" className='w-full px-4 py-2 text-gray-700 bg-white border-gray-300 rounded transition duration-150 ease-in-out mb-6'/>
+            <input type="number" id='Dprice' value={Dprice} onChange={onChange} placeholder='Discounted Price' required={offer} min="1" max="1000000000" className='w-full px-4 py-2 text-gray-700 bg-white border-gray-300 rounded transition duration-150 ease-in-out mb-6'/>
           </div>
         )}
         <div className='mb-6'>
