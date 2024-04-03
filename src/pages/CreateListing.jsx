@@ -120,6 +120,7 @@ export default function CreateListing() {
       long: geo.long,
       lat: geo.lat,
       timeStamp: serverTimestamp(),
+      userRef: auth.currentUser.uid
     }
     delete formDataCopy.images
     !formDataCopy.offer && delete formDataCopy.Dprice
