@@ -3,10 +3,11 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
 import { db } from '../../firebase.config'
-import { collection, doc, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore'
+import { collection, deleteDoc, doc, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore'
 import { FaHome } from "react-icons/fa";
 import { Link } from 'react-router-dom'
 import ListingItem from '../components/ListingItem'
+import Skeleton from '../components/Skeleton'
 
 function Profile() {
   const auth = getAuth()
@@ -63,6 +64,23 @@ function Profile() {
     }
     userListings()
   }, [auth.currentUser.uid])
+  async function onDelete(id) {
+    const confirm = window.confirm("Are you sure you want to delete this listing?")
+    if (confirm) {
+      // Delete the listing
+      try {
+        await deleteDoc(doc(db, 'listings', id))
+        toast.success("Listing deleted successfully")
+        setListings((prevState) => prevState.filter((listing) => listing.id !== id))
+      } catch (error) {
+        console.error(error)
+        toast.error("An error occurred while deleting the listing")
+      }
+    }
+  }
+  function onEdit(id) {
+    navigate(`/edit-listing/${id}`)
+  }
   return (
     <>
     <section className='max-w-6xl mx-auto flex justify-center items-center flex-col'>
@@ -89,15 +107,21 @@ function Profile() {
       </div>
     </section>
     <div className='max-w-6xl px-3 m-6 mx-auto'>
+      <h1 className='mb-6 text-3xl text-center mt-6 font-bold'>Your Listings</h1>
+      {loading && (<Skeleton />)}
+      {listings && listings.length === 0 && (
+        <div className='text-center text-gray-600 font-semibold text-xl mt-6'>You have not listed any property yet</div>
+      )}
       {!loading && listings.length > 0 && (
         <>
-          <h1 className='text-3xl text-center font-bold mt-6'>Your Listings</h1>
           <ul className='sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 mt-6 mb-6'>
             {listings.map((listing) => (
               <ListingItem
                 key={listing.id}
                 listing={listing.data}
                 id={listing.id}
+                onDelete={() => onDelete(listing.id)}
+                onEdit={() => onEdit(listing.id)}
               />
             ))}
           </ul>
