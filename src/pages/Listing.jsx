@@ -6,13 +6,14 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Scrollbar, EffectFade, Autoplay } from 'swiper/modules';
 import { MdLocationOn } from 'react-icons/md';
 import { FaBed, FaBath, FaParking, FaChair } from "react-icons/fa";
+import { getAuth } from 'firebase/auth';
+import Contact from '../components/Contact';
+import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';
 import 'swiper/css/effect-fade';
-import { getAuth } from 'firebase/auth';
-import Contact from '../components/Contact';
 
 
 
@@ -22,6 +23,7 @@ export default function Listing() {
     const [contactOwner, setContactOwner] = useState(false)
     const { id } = useParams()
     const auth = getAuth()
+    const position = [25.416476, 55.451297]
 
     useEffect(() => {
         async function fetchListing() {
@@ -57,7 +59,7 @@ export default function Listing() {
             ))}
     </Swiper>
     <div className="flex flex-col md:flex-row max-w-6xl lg:mx-auto lg:space-x-5 rounded-lg bg-white p-4 m-4">
-        <div className="w-full h-[200px] lg:h-[400px]">
+        <div className="w-full">
             <p className='text-2xl font-bold m-4 rounded text-yellow-950'>
                 {listing.name} - ${" "} {listing.offer ? listing.Dprice
                 .toString()
@@ -93,7 +95,19 @@ export default function Listing() {
             )}
             {contactOwner && (<Contact userRef={listing.userRef} listing={listing}/>)}
     </div>
-        <div className=" bg-blue-100 w-full h-[200px] lg:h-[400px] overflow-x-hidden"></div>
+        <div className=" bg-red-300 w-full h-[200px] lg:h-[400px] overflow-x-hidden m-6 z-10">
+        <MapContainer center={position} zoom={13} scrollWheelZoom={false} style={{height:"100%", width:"100%"}}>
+            <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={position}>
+                <Popup>
+                     A pretty CSS3 popup. <br /> Easily customizable.
+                </Popup>
+            </Marker>
+        </MapContainer>
+        </div>
     </div>
   </main>
 }
