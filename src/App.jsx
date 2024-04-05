@@ -11,6 +11,7 @@ import ForgotPass from './pages/ForgotPass'
 import Header from './components/Header'
 import CreateListing from './pages/CreateListing'
 import EditListing from './pages/EditListing';
+import Listing from './pages/Listing';
 function App() {
 
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/edit-listing/:id" element={<EditListing />} />
           </Route>
           <Route path="/forgot-password" element={<ForgotPass />} />
+          <Route path="/category/:categName/:id" element={<Listing />} />
         </Routes>
       </Router>
       <ToastContainer
