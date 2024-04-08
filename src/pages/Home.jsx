@@ -4,6 +4,7 @@ import { collection, getDocs, limit, orderBy, query, where } from 'firebase/fire
 import { db } from '../../firebase.config'
 import { Link } from 'react-router-dom'
 import ListingItem from '../components/ListingItem'
+import { FaArrowRight } from "react-icons/fa";
 
 
 function Home() {
@@ -81,8 +82,8 @@ function Home() {
             <ListingItem key={id} listing={data} id={id} />
           ))}
         </div>
-        <div>
-          <Link to='/listings' className='text-2xl text-blue-700 text-center font-semibold'>View All Listings</Link>
+        <div className='text-center flex flex-row'>
+          <Link to='/offers' className='text-sm text-blue-700 font-semibold'>View All Listings <FaArrowRight/></Link>
         </div>
         <h1 className='text-4xl font-semibold mt-10 mb-5'>Rent Listings</h1>
         {loadingRent && <p>Loading...</p>}
@@ -91,8 +92,8 @@ function Home() {
             <ListingItem key={id} listing={data} id={id} />
           ))}
           </div>
-        <div>
-          <Link to='/category/rent' className='text-2xl text-blue-700 text-center font-semibold'>View All Listings</Link>
+        <div className='text-center'>
+          <Link to='/category/rent' className='text-2xl text-blue-700 font-semibold'>View All Listings</Link>
           </div>
         <h1 className='text-4xl font-semibold mt-10 mb-5'>Sale Listings</h1>
         {loadingSale && <p>Loading...</p>}
@@ -101,8 +102,8 @@ function Home() {
             <ListingItem key={id} listing={data} id={id} />
           ))}
           </div>
-        <div>
-          <Link to='/category/sale' className='text-2xl text-blue-700 text-center font-semibold'>View All Listings</Link>
+        <div className='text-center'>
+          <Link to='/category/sale' className='text-2xl text-blue-700 font-semibold'>View All Listings</Link>
           </div>
       </div>
     </>

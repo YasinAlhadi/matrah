@@ -16,9 +16,9 @@ export default function ListingItem({ listing, id, onDelete, onEdit }) {
                 </div>
                 <p className='font-semibold text-xl truncate'>{listing.name}</p>
                 <p className='font-semibold mt-2 text-fuchsia-900'>
-                    ${listing.offer ? listing.Dprice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : listing.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                    AED{listing.offer ? listing.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : listing.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                     {listing.offer && <span className="text-red-500 ml-2">Offer</span>}
-                    {listing.type == "rent" && <span className="text-green-500 ml-2">Rent / Month </span>}
+                    {listing.type == "rent" && <span className="text-green-500 ml-2">Rent / annual </span>}
                     {listing.type == "sale" && <span className="text-blue-500 ml-2">Sale</span>}
                 </p>
                 <div className="flex items-center mt-[10px] space-x-3">

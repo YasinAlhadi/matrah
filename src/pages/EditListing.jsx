@@ -208,11 +208,11 @@ export default function EditListing() {
         <div className='flex space-x-6 mb-6'>
           <div>
             <p className='text-lg font-semibold'>latitude</p>
-            <input type="number" id='lat' value={lat} onChange={onChange} min='-90' max='90' required className='w-full px-4 py-2 text-lg text-center text-gray-700 bg-white border-gray-300 rounded transition duration-150 ease-in-out mb-6'/>
+            <input type="number" id='lat' value={lat} onChange={onChange} min='-90' max='90' step="any" required className='w-full px-4 py-2 text-lg text-center text-gray-700 bg-white border-gray-300 rounded transition duration-150 ease-in-out mb-6'/>
           </div>
           <div>
             <p className='w-full text-lg font-semibold'>longitude</p>
-            <input type="number" id='long' value={long} onChange={onChange} min='-180' max='180' required className='px-4 py-2 text-lg text-center text-gray-700 bg-white border-gray-300 rounded transition duration-150 ease-in-out mb-6'/>
+            <input type="number" id='long' value={long} onChange={onChange} min='-180' max='180' step="any" required className='px-4 py-2 text-lg text-center text-gray-700 bg-white border-gray-300 rounded transition duration-150 ease-in-out mb-6'/>
             </div>
         </div>
         <p className='text-lg font-semibold'>Description</p>
@@ -233,7 +233,7 @@ export default function EditListing() {
           </div>
           {type === 'rent' && (
             <div>
-            <p className='text-md w-full whitespace-nowrap'>$ / month</p>
+            <p className='text-md w-full whitespace-nowrap'>AED / month</p>
           </div>
           )}
         </div>
@@ -246,7 +246,7 @@ export default function EditListing() {
         <div className='mb-6'>
           <p className='text-lg font-semibold'>Images</p>
           <p className='text-gray-600'>The first image will be the cover (max 6)</p>
-          <input type="file" id="images" onChange={onChange} accept='.jpg,.png,.jpeg' multiple required className='w-full px-3 py-1.5 text-gray-700 bg-white border-gray-300 rounded transition duration-150 ease-in-out' />
+          <input type="file" id="images" onChange={onChange} accept='.jpg,.png,.jpeg' multiple className='w-full px-3 py-1.5 text-gray-700 bg-white border-gray-300 rounded transition duration-150 ease-in-out' />
         </div>
         <button type='submit' className='mb-6 w-full bg-blue-600 text-white uppercase px-7 py-3 text-sm font-medium rounded shadow-md hover:bg-blue-700 transition duration-150 ease-out hover:shadow-lg'>
           Edit Listing

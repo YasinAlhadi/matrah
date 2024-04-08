@@ -12,6 +12,8 @@ import Header from './components/Header'
 import CreateListing from './pages/CreateListing'
 import EditListing from './pages/EditListing';
 import Listing from './pages/Listing';
+import Footer from './components/Footer';
+import Category from './pages/Category';
 function App() {
 
   return (
@@ -26,6 +28,7 @@ function App() {
           <Route path="/sign-in" element={<SingIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/offers" element={<Offers />} />
+          <Route path="/category/:categName" element={<Category />} />
           <Route path='/create-listing' element={<PrivuteRoute />}>
             <Route path="/create-listing" element={<CreateListing />} />
           </Route>
@@ -35,6 +38,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPass />} />
           <Route path="/category/:categName/:id" element={<Listing />} />
         </Routes>
+        <Footer />
       </Router>
       <ToastContainer
         position="bottom-center"

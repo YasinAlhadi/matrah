@@ -50,7 +50,7 @@ export default function Slider() {
             >
                 {listings.map((listing, index) => (
                     <SwiperSlide key={index}>
-                        <div className="w-full overflow-hidden h-[400px]" style={{background: `url(${listing.imgUrls[0]}) center no-repeat`}}></div>
+                        <div className="w-full overflow-hidden h-lvh object-cover" style={{background: `url(${listing.imgUrls[0]}) center no-repeat` }}></div>
                     </SwiperSlide>
                 ))}
             </Swiper>

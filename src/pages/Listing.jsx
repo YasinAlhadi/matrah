@@ -23,7 +23,6 @@ export default function Listing() {
     const [contactOwner, setContactOwner] = useState(false)
     const { id } = useParams()
     const auth = getAuth()
-    const position = [25.416476, 55.451297]
 
     useEffect(() => {
         async function fetchListing() {
@@ -39,9 +38,11 @@ export default function Listing() {
         }
         fetchListing()
     }, [id])
+    const offerPrice = listing.offer ? listing.price - listing.Dprice : null
     if (loading) {
         return <div>Loading...</div>
     }
+    const position = [listing.lat, listing.long]
   return <main>
     <Swiper
         modules={[Navigation, Pagination, Scrollbar, EffectFade, Autoplay]}
@@ -54,26 +55,29 @@ export default function Listing() {
     >
             {listing.imgUrls.map((image, index) => (
         <SwiperSlide key={index}>
-                <div className="w-full overflow-hidden h-[400px]" style={{background: `url(${listing.imgUrls[index]}) center no-repeat`}}></div>
+                <div className="w-full overflow-hidden h-[400px]" style={{background: `url(${listing.imgUrls[index]}) center no-repeat `}}></div>
         </SwiperSlide>
             ))}
     </Swiper>
     <div className="flex flex-col md:flex-row max-w-6xl lg:mx-auto lg:space-x-5 rounded-lg bg-white p-4 m-4">
         <div className="w-full">
             <p className='text-2xl font-bold m-4 rounded text-yellow-950'>
-                {listing.name} - ${" "} {listing.offer ? listing.Dprice
+                {listing.name} - AED{" "} {listing.offer ? listing.price
                 .toString()
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ",") : listing.price
                 .toString()
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} 
-                {listing.type == "rent" && <span className="text-green-500 ml-2">Rent / Month </span>} {listing.type == "sale" && <span className="text-blue-500 ml-2">Sale</span>}{" "}
             </p>
             <div className="flex items-center space-x-1 m-4">
                 <MdLocationOn className='h-6 w-6 text-green-800' />
-                    <p className='font-semibold text-lg mb-[2px] text-gray-600'>{listing.address}</p>
-                {listing.offer && (
-                <p> ${+listing.price - +listing.Dprice} Discount</p>
-                )} 
+                    <p className='font-semibold text-lg mb-[2px] text-gray-600'>{listing.address}</p> 
+            </div>
+            <div className="d">
+                {listing.type == "rent" && <span className="text-white px-4 py-2 font-semibold bg-slate-700 rounded">Rent / Annual </span>} {listing.type == "sale" && <span className="text-white px-2 py-1 font-semibold bg-red-700 rounded m-4">Sale</span>}{" "}
+                {listing.offer && <span className="text-white px-2 py-1 font-semibold rounded bg-red-950">Offer Price AED {offerPrice
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>}
+                    
             </div>
             <p className='m-4'>
             <span className='font-semibold'> Description - </span>
