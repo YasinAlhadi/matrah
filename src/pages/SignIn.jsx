@@ -102,8 +102,8 @@ function SignIn() {
             <div className="flex items-center my-4 before:border-t before:flex-1 before:border-gray-400 after:border-t after:flex-1 after:border-gray-400">
               <p className="text-center font-semibold mx-4">OR</p>
             </div>
-            <OAuth />
           </form>
+          <OAuth />
         </div>
       </div>
     </section>
